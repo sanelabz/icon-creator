@@ -14,6 +14,7 @@ interface ManualPick {
 // a solid generic pictogram rather than any brand mark, even where the app
 // has one. Filled rather than outline so they read clearly at badge size.
 export const GENERIC_ICON_MAP: Record<string, ManualPick> = {
+  dolphin: { icon: "ph:folder-fill", category: "kde" },
   konsole: { icon: "ph:terminal-window-fill", category: "kde" },
   kate: { icon: "ph:pencil-fill", category: "kde" },
   okular: { icon: "ph:book-open-fill", category: "kde" },
@@ -77,9 +78,6 @@ export const CATEGORY_OVERRIDES: Record<string, string> = {
   // don't map cleanly onto this set's productivity/utilities split.
   dropbox: "productivity",
   bitwarden: "productivity",
-  // Dolphin's Flathub search top hit is "dolphin-emu" (Game Emulator), which
-  // would misclassify it as "gaming". It is a file manager utility.
-  dolphin: "utilities",
   // OBS Studio's Flathub category (Recorder) would auto-file it under
   // "media" as a capture tool, but it belongs with the other content-
   // creation apps here.
