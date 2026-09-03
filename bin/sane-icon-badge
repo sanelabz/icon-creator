@@ -1,0 +1,14 @@
+#!/bin/sh
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -f "$SCRIPT_DIR/../share/sane-icons/generator/simple-icon-badge.js" ]; then
+  exec node "$SCRIPT_DIR/../share/sane-icons/generator/simple-icon-badge.js" "$@"
+elif [ -f "/usr/share/sane-icons/generator/simple-icon-badge.js" ]; then
+  exec node /usr/share/sane-icons/generator/simple-icon-badge.js "$@"
+elif [ -f "$SCRIPT_DIR/../icon-badge-svg/dist/simple-icon-badge.js" ]; then
+  exec node "$SCRIPT_DIR/../icon-badge-svg/dist/simple-icon-badge.js" "$@"
+elif [ -f "$SCRIPT_DIR/../icon-badge-svg/simple-icon-badge.ts" ]; then
+  exec npx tsx "$SCRIPT_DIR/../icon-badge-svg/simple-icon-badge.ts" "$@"
+else
+  echo "Error: sane-icon-badge generator script not found." >&2
+  exit 1
+fi

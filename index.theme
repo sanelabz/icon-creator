@@ -1,0 +1,23 @@
+[Icon Theme]
+Name=Sane
+Comment=Sane Icon Theme for saneOS
+Inherits=breeze,hicolor
+Directories=128x128/apps,128x128/categories,scalable/apps
+Example=firefox
+
+[128x128/apps]
+Size=128
+Context=Applications
+Type=Fixed
+
+[128x128/categories]
+Size=128
+Context=Categories
+Type=Fixed
+
+[scalable/apps]
+Size=128
+MinSize=16
+MaxSize=512
+Context=Applications
+Type=Scalable

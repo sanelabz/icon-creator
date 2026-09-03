@@ -31,8 +31,10 @@
  *   npx tsx simple-icon-badge.ts chatgpt
  *   npx tsx simple-icon-badge.ts chatgpt custom-badge.svg
  */
-import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { access, mkdir, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { categorize } from "./categorize.js";
 import { CATEGORY_OVERRIDES, GENERIC_ICON_MAP, ICONIFY_OVERRIDES } from "./local-glyphs.js";
@@ -154,6 +156,41 @@ function makeBadge(iconSvg: string, label: string): string {
 `;
 }
 
+async function isWritableDir(dirPath: string): Promise<boolean> {
+  try {
+    await access(dirPath, constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveDestination(
+  outputPath: string | undefined,
+  generatorDirectory: string,
+  category: string,
+  slug: string,
+): Promise<string> {
+  if (outputPath) {
+    return resolve(outputPath);
+  }
+
+  if (process.env.SANE_ICONS_DIR) {
+    return resolve(process.env.SANE_ICONS_DIR, category, `${slug}.svg`);
+  }
+
+  const localRepoIconsDir = resolve(generatorDirectory, "..", "icons");
+  if (await isWritableDir(localRepoIconsDir)) {
+    return resolve(localRepoIconsDir, category, `${slug}.svg`);
+  }
+
+  const userIconDir = process.env.XDG_DATA_HOME
+    ? join(process.env.XDG_DATA_HOME, "icons", "Sane", "128x128", "apps")
+    : join(homedir(), ".local", "share", "icons", "Sane", "128x128", "apps");
+
+  return resolve(userIconDir, `${slug}.svg`);
+}
+
 async function main(): Promise<void> {
   const [slugArg, outputPath] = process.argv.slice(2);
   if (!slugArg) usage();
@@ -193,8 +230,7 @@ async function main(): Promise<void> {
   }
 
   const generatorDirectory = dirname(fileURLToPath(import.meta.url));
-  const defaultOutputPath = resolve(generatorDirectory, "..", "icons", category, `${slug}.svg`);
-  const destination = outputPath ?? defaultOutputPath;
+  const destination = await resolveDestination(outputPath, generatorDirectory, category, slug);
 
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, badge, "utf8");
