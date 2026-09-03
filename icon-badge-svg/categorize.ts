@@ -17,7 +17,11 @@ async function loadManifest(): Promise<Manifest> {
 }
 
 async function saveManifest(manifest: Manifest): Promise<void> {
-  await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  try {
+    await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  } catch {
+    // Gracefully ignore write failures when running from read-only system paths
+  }
 }
 
 function normalize(tag: string): string {
