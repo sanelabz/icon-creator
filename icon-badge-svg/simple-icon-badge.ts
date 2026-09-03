@@ -90,6 +90,182 @@ async function tryFetchJson(url: string): Promise<string | null> {
   return response.text();
 }
 
+const NAMED_COLORS: Record<string, string> = {
+  white: "#ffffff",
+  black: "#000000",
+  red: "#ff0000",
+  green: "#008000",
+  blue: "#0000ff",
+  yellow: "#ffff00",
+  cyan: "#00ffff",
+  magenta: "#ff00ff",
+  fuchsia: "#ff00ff",
+  gray: "#808080",
+  grey: "#808080",
+  lightgray: "#d3d3d3",
+  lightgrey: "#d3d3d3",
+  darkgray: "#a9a9a9",
+  darkgrey: "#a9a9a9",
+  silver: "#c0c0c0",
+  maroon: "#800000",
+  olive: "#808000",
+  purple: "#800080",
+  teal: "#008080",
+  navy: "#000080",
+  orange: "#ffa500",
+  pink: "#ffc0cb",
+};
+
+interface ParsedColor {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+}
+
+function parseColor(str: string): ParsedColor | null {
+  if (!str) return null;
+  const s = str.trim().toLowerCase();
+  if (s === "none" || s === "transparent" || s === "inherit" || s === "initial" || s === "unset") {
+    return null;
+  }
+  if (s === "currentcolor") {
+    return { r: 0, g: 0, b: 0 };
+  }
+  const hex = NAMED_COLORS[s] ?? s;
+  if (hex.startsWith("#")) {
+    const h = hex.slice(1);
+    if (h.length === 3) {
+      return {
+        r: parseInt(h[0] + h[0], 16),
+        g: parseInt(h[1] + h[1], 16),
+        b: parseInt(h[2] + h[2], 16),
+      };
+    }
+    if (h.length === 4) {
+      return {
+        r: parseInt(h[0] + h[0], 16),
+        g: parseInt(h[1] + h[1], 16),
+        b: parseInt(h[2] + h[2], 16),
+        a: parseInt(h[3] + h[3], 16) / 255,
+      };
+    }
+    if (h.length === 6) {
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16),
+      };
+    }
+    if (h.length === 8) {
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16),
+        a: parseInt(h.slice(6, 8), 16) / 255,
+      };
+    }
+  }
+  const rgbMatch = s.match(/^rgba?\s*\(\s*(\d+%?)\s*,\s*(\d+%?)\s*,\s*(\d+%?)(?:\s*,\s*([\d.]+))?\s*\)$/);
+  if (rgbMatch) {
+    const parseComponent = (c: string) => (c.endsWith("%") ? Math.round(parseFloat(c) * 2.55) : parseInt(c, 10));
+    return {
+      r: parseComponent(rgbMatch[1]),
+      g: parseComponent(rgbMatch[2]),
+      b: parseComponent(rgbMatch[3]),
+      a: rgbMatch[4] !== undefined ? parseFloat(rgbMatch[4]) : undefined,
+    };
+  }
+  return null;
+}
+
+function getLuminance(c: ParsedColor): number {
+  return Math.round(0.299 * c.r + 0.587 * c.g + 0.114 * c.b);
+}
+
+function toHex2(val: number): string {
+  const v = Math.max(0, Math.min(255, Math.round(val)));
+  return v.toString(16).padStart(2, "0");
+}
+
+function convertColorToMono(colorStr: string, lMin: number, lMax: number): string {
+  const c = parseColor(colorStr);
+  if (!c) return colorStr;
+  let L = getLuminance(c);
+  if (lMin > 128) {
+    if (lMax > lMin) {
+      L = Math.round(((L - lMin) / (lMax - lMin)) * 180);
+    } else {
+      L = 0;
+    }
+  }
+  const hex = `#${toHex2(L)}${toHex2(L)}${toHex2(L)}`;
+  if (c.a !== undefined && c.a < 1) {
+    const alphaHex = toHex2(c.a * 255);
+    return `${hex}${alphaHex}`;
+  }
+  return hex;
+}
+
+/** Convert an SVG icon to monochrome while ensuring it remains visible on the white badge circle. */
+export function monochromize(svg: string): string {
+  const colorAttrRegex = /(?:fill|stroke|stop-color|color)\s*=\s*["']([^"']+)["']/gi;
+  const styleAttrRegex = /style\s*=\s*["']([^"']+)["']/gi;
+  const stylePropRegex = /(?:fill|stroke|stop-color|color)\s*:\s*([^;"]+)/gi;
+
+  const foundColors: ParsedColor[] = [];
+
+  let match: RegExpExecArray | null;
+  colorAttrRegex.lastIndex = 0;
+  while ((match = colorAttrRegex.exec(svg)) !== null) {
+    const parsed = parseColor(match[1]);
+    if (parsed) foundColors.push(parsed);
+  }
+
+  styleAttrRegex.lastIndex = 0;
+  while ((match = styleAttrRegex.exec(svg)) !== null) {
+    const styleContent = match[1];
+    stylePropRegex.lastIndex = 0;
+    let propMatch: RegExpExecArray | null;
+    while ((propMatch = stylePropRegex.exec(styleContent)) !== null) {
+      const parsed = parseColor(propMatch[1]);
+      if (parsed) foundColors.push(parsed);
+    }
+  }
+
+  let lMin = 255;
+  let lMax = 0;
+  if (foundColors.length > 0) {
+    for (const c of foundColors) {
+      const L = getLuminance(c);
+      if (L < lMin) lMin = L;
+      if (L > lMax) lMax = L;
+    }
+  } else {
+    lMin = 0;
+    lMax = 0;
+  }
+
+  let result = svg.replace(/(fill|stroke|stop-color|color)\s*=\s*["']([^"']+)["']/gi, (full, attr, val: string) => {
+    if (val.trim().toLowerCase() === "none") return full;
+    const mono = convertColorToMono(val, lMin, lMax);
+    return `${attr}="${mono}"`;
+  });
+
+  result = result.replace(/currentColor/g, convertColorToMono("currentColor", lMin, lMax));
+
+  result = result.replace(/style\s*=\s*["']([^"']+)["']/gi, (full, styleContent: string) => {
+    const newStyle = styleContent.replace(/(fill|stroke|stop-color|color)\s*:\s*([^;"]+)/gi, (propFull, prop, val: string) => {
+      if (val.trim().toLowerCase() === "none") return propFull;
+      const mono = convertColorToMono(val, lMin, lMax);
+      return `${prop}:${mono}`;
+    });
+    return `style="${newStyle}"`;
+  });
+
+  return result;
+}
+
 /** Force every mark to solid black regardless of its source's own styling. */
 function blacken(svg: string): string {
   return svg
@@ -133,7 +309,7 @@ async function searchDirectories(slug: string): Promise<Found | null> {
     const iconId = parsed.icons?.find((id) => !id.startsWith("ph:"));
     if (!iconId) continue;
     const svg = await tryFetch(`${ICONIFY_API}/${iconId.replace(":", "/")}.svg`);
-    if (svg) return { svg: blacken(svg), source: `Iconify (${iconId})`, tags: [] };
+    if (svg) return { svg: monochromize(svg), source: `Iconify (${iconId})`, tags: [] };
   }
 
   for (const query of queries) {
@@ -203,7 +379,7 @@ async function main(): Promise<void> {
   if (manualPick) {
     const svg = await tryFetch(`${ICONIFY_API}/${manualPick.icon.replace(":", "/")}.svg`);
     if (!svg) throw new Error(`Iconify icon "${manualPick.icon}" for "${slug}" failed to fetch.`);
-    badge = makeBadge(blacken(svg), slug);
+    badge = makeBadge(monochromize(svg), slug);
     category = manualPick.category;
     console.log(`Using Iconify "${manualPick.icon}" for "${slug}" -> category "${category}" (manual pick).`);
   } else {
@@ -237,7 +413,9 @@ async function main(): Promise<void> {
   console.log(`Created ${destination}`);
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

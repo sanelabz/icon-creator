@@ -44,6 +44,40 @@ if (!existsSync(join(rootDir, 'icon-badge-svg/dist/simple-icon-badge.js'))) {
 }
 console.log('✔ Generator build succeeded.');
 
+// Test 2b: Verify monochromize function
+console.log('\n2b. Testing monochromize function...');
+const { monochromize } = await import(join(rootDir, 'icon-badge-svg/dist/simple-icon-badge.js'));
+
+// Test white SVG inversion
+const whiteSvg = '<svg><path fill="#ffffff" d="M0 0h10v10H0z"/></svg>';
+const monoWhite = monochromize(whiteSvg);
+if (!monoWhite.includes('fill="#000000"')) {
+  throw new Error(`monochromize failed to make white SVG visible on white circle: ${monoWhite}`);
+}
+
+// Test multi-color SVG grayscale preservation
+const multiColorSvg = '<svg><path fill="#607D8B" d="A"/><path fill="#455A64" d="B"/></svg>';
+const monoMulti = monochromize(multiColorSvg);
+if (!monoMulti.includes('fill="#767676"') || !monoMulti.includes('fill="#555555"')) {
+  throw new Error(`monochromize failed to convert multi-color SVG to distinct grays: ${monoMulti}`);
+}
+
+// Test composite SVG (black circle with white star) preservation
+const compositeSvg = '<svg><circle fill="#000000" r="10"/><path fill="#ffffff" d="M0 0h5v5H0z"/></svg>';
+const monoComposite = monochromize(compositeSvg);
+if (!monoComposite.includes('fill="#000000"') || !monoComposite.includes('fill="#ffffff"')) {
+  throw new Error(`monochromize failed to preserve dark container and white cutout in composite SVG: ${monoComposite}`);
+}
+
+// Test currentColor conversion
+const currentColorSvg = '<svg><path fill="currentColor" d="C"/></svg>';
+const monoCurrentColor = monochromize(currentColorSvg);
+if (!monoCurrentColor.includes('fill="#000000"')) {
+  throw new Error(`monochromize failed to convert currentColor: ${monoCurrentColor}`);
+}
+
+console.log('✔ monochromize logic verified.');
+
 // Test 3: Local badge generation
 console.log('\n3. Testing local badge generation...');
 execSync('npm run badge -- firefox', { cwd: join(rootDir, 'icon-badge-svg'), stdio: 'inherit' });
