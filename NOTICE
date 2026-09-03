@@ -1,0 +1,23 @@
+Copyright 2026 Sane Labs
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This project's own code (the generator scripts in icon-badge-svg/) is
+original work licensed as above. The icons it produces in icons/ are
+derivative of, or fetched directly from, third-party icon projects, each
+under its own license and listed below. Brand and product marks among them
+(app logos such as Firefox, Spotify, Discord, etc.) remain the trademarks of
+their respective owners regardless of the source icon set's copyright
+license - a permissive icon license covers the artwork, not trademark rights
+in the mark it depicts.
+
+Third-party icon sources used by the generator:
+
+- Simple Icons (https://simpleicons.org) - CC0-1.0
+- Tabler Icons (https://tabler.io/icons) - MIT
+- Phosphor Icons (https://phosphoricons.com) - MIT
+- Iconify (https://iconify.design) - aggregates many icon sets; each result's
+  license is whatever its own set uses (predominantly MIT, Apache-2.0, or
+  CC0-1.0, but verify per icon before redistribution beyond this project)
+- Flathub (https://flathub.org) - used only for its structured app-category
+  metadata (via the public API), not for icon artwork

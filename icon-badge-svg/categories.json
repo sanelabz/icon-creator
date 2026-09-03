@@ -1,0 +1,158 @@
+{
+  "ai": {
+    "tags": [
+      "artificial",
+      "intelligence",
+      "chatbot",
+      "assistant",
+      "llm",
+      "machine",
+      "learning",
+      "generative",
+      "language",
+      "model",
+      "openai",
+      "neural"
+    ]
+  },
+  "browsers": {
+    "tags": [
+      "browser",
+      "internet",
+      "explorer",
+      "browsing",
+      "webbrowser",
+      "network",
+      "web"
+    ]
+  },
+  "music": {
+    "tags": [
+      "music",
+      "audio",
+      "streaming",
+      "song",
+      "songs",
+      "playlist",
+      "artists",
+      "album",
+      "listen"
+    ]
+  },
+  "office": {
+    "tags": [
+      "office",
+      "spreadsheet",
+      "presentation",
+      "word",
+      "processor",
+      "suite"
+    ]
+  },
+  "productivity": {
+    "tags": [
+      "productivity",
+      "tasks",
+      "task",
+      "notes",
+      "note",
+      "taking",
+      "planner",
+      "todo",
+      "organizer"
+    ]
+  },
+  "communication": {
+    "tags": [
+      "instant",
+      "messaging",
+      "chat",
+      "voip",
+      "video",
+      "conference",
+      "conferencing",
+      "calling",
+      "telephony"
+    ]
+  },
+  "development": {
+    "tags": [
+      "development",
+      "ide",
+      "text",
+      "editor",
+      "programming",
+      "coding",
+      "repository",
+      "version",
+      "control",
+      "container",
+      "api",
+      "code",
+      "software",
+      "brand",
+      "vscode",
+      "logo",
+      "company",
+      "trademark",
+      "identity",
+      "corporate"
+    ]
+  },
+  "media": {
+    "tags": [
+      "player",
+      "playback",
+      "recorder",
+      "audiovideo",
+      "movie",
+      "cinema"
+    ]
+  },
+  "creative": {
+    "tags": [
+      "graphics",
+      "vector",
+      "raster",
+      "design",
+      "photography",
+      "modeling",
+      "animation",
+      "2dgraphics"
+    ]
+  },
+  "gaming": {
+    "tags": [
+      "game",
+      "gaming",
+      "packagemanager",
+      "package",
+      "manager",
+      "action"
+    ]
+  },
+  "utilities": {
+    "tags": [
+      "utility",
+      "security",
+      "password",
+      "authentication",
+      "encryption"
+    ]
+  },
+  "web": {
+    "tags": [
+      "webapp",
+      "pwa"
+    ]
+  },
+  "kde": {
+    "tags": [
+      "kde",
+      "plasma",
+      "desktop",
+      "environment",
+      "linux"
+    ]
+  }
+}

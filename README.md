@@ -1,0 +1,56 @@
+# icon-creator
+
+An automatic icon-badge generator for saneOS, a Fedora-based Linux
+distribution. Given an app's name, it finds the best available brand mark (or,
+for saneOS's own bundled KDE apps, a generic pictogram instead of a brand
+mark), renders it as a flat black glyph centered in a white 128px circular
+SVG badge, and automatically files the result into the right category under
+[`icons/`](icons) - no per-app category list to maintain by hand.
+
+```
+icons/
+├── ai/            claude.svg, chatgpt.svg, googlegemini.svg, ollama.svg
+├── browsers/      firefox.svg, brave.svg, chromium.svg, microsoftedge.svg, ...
+├── communication/ discord.svg, slack.svg, whatsapp.svg, signal.svg, zoom.svg, ...
+├── creative/      figma.svg, blender.svg, krita.svg, davinciresolve.svg, ...
+├── development/   vscode.svg, github.svg, docker.svg, zed.svg, cursor.svg, ...
+├── gaming/        steam.svg, epicgames.svg
+├── kde/           dolphin.svg, konsole.svg, systemsettings.svg, ...
+├── media/         vlc.svg, tidal.svg
+├── music/         spotify.svg, applemusic.svg, youtubemusic.svg
+├── office/        libreofficewriter.svg, libreofficecalc.svg, ...
+├── productivity/  obsidian.svg, notion.svg, dropbox.svg, bitwarden.svg, ...
+├── utilities/     1password.svg, localsend.svg
+└── web/           gmail.svg, outlook.svg, youtube.svg, netflix.svg, ...
+```
+
+## Usage
+
+```sh
+cd icon-badge-svg
+npm install
+npm run badge -- firefox
+```
+
+This creates `icons/browsers/firefox.svg`. See
+[`icon-badge-svg/README.md`](icon-badge-svg/README.md) for how the generator
+picks an icon and a category, and how to extend it.
+
+## How classification works
+
+An icon's category is never guessed from its name. For most apps it comes
+from [Flathub](https://flathub.org)'s structured AppStream menu categories
+(`WebBrowser`, `Audio`, `Development`, ...) - real package metadata that
+almost every native Linux app declares - matched against a small,
+self-describing tag vocabulary in
+[`icon-badge-svg/categories.json`](icon-badge-svg/categories.json). A handful
+of apps (PWAs with no package metadata at all, or ones Flathub's data can't
+disambiguate) get an explicit, documented category override instead of a
+silent guess - see [`local-glyphs.ts`](icon-badge-svg/local-glyphs.ts).
+
+## License
+
+The generator code is licensed under [Apache-2.0](LICENSE). The icons under
+`icons/` are pulled from several third-party icon projects, each under its
+own license, and many depict third-party trademarks - see [`NOTICE`](NOTICE)
+before redistributing them.
