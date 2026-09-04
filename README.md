@@ -36,6 +36,15 @@ This creates `icons/browsers/firefox.svg`. See
 [`icon-badge-svg/README.md`](icon-badge-svg/README.md) for how the generator
 picks an icon and a category, and how to extend it.
 
+## Automatic icon sync on Fedora KDE
+
+The RPM installs and enables a user-level `sane-icon-sync` service. Once the
+Sane icon theme is selected, it scans desktop launchers and generates a badge
+for each safe, missing `Icon=` name. It runs when KDE's icon-theme setting or
+an application launcher changes, and also performs an hourly catch-up scan.
+The matcher is deliberately limited to literal launcher icon names; it does
+not make approximate-name guesses that could apply an icon to the wrong app.
+
 ## How classification works
 
 An icon's category is never guessed from its name. For most apps it comes

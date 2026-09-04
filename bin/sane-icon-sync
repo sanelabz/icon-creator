@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Generate missing Sane-theme icons for desktop launchers while the Sane icon
+# theme is active.  The systemd user units run this after launcher/theme
+# changes and periodically as a catch-up for package managers and Flatpaks.
+set -u
+
+data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+user_theme="$data_home/icons/Sane"
+system_theme="/usr/share/icons/Sane"
+badge_generator="${SANE_ICON_BADGE:-/usr/bin/sane-icon-badge}"
+
+theme_is_sane() {
+  local configured_theme
+  [ -f "$config_home/kdeglobals" ] || return 1
+  configured_theme="$({ awk '
+    /^\[/{ in_icons = ($0 == "[Icons]"); next }
+    in_icons && /^Theme=/ { sub(/^Theme=/, ""); print; exit }
+  ' "$config_home/kdeglobals"; } 2>/dev/null)"
+  case "$configured_theme" in
+    [Ss][Aa][Nn][Ee]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+safe_icon_name() {
+  [[ "$1" =~ ^[[:alnum:]][[:alnum:]._-]*$ ]]
+}
+
+icon_exists() {
+  [ -f "$user_theme/128x128/apps/$1.svg" ] || [ -f "$system_theme/128x128/apps/$1.svg" ]
+}
+
+desktop_dirs=(
+  "$data_home/applications"
+  "/usr/local/share/applications"
+  "/usr/share/applications"
+  "$data_home/flatpak/exports/share/applications"
+  "/var/lib/flatpak/exports/share/applications"
+)
+
+theme_is_sane || exit 0
+
+changed=0
+while IFS= read -r icon_name; do
+  safe_icon_name "$icon_name" || continue
+  icon_exists "$icon_name" && continue
+  if "$badge_generator" "$icon_name"; then
+    changed=1
+  fi
+done < <(
+  for desktop_dir in "${desktop_dirs[@]}"; do
+    [ -d "$desktop_dir" ] || continue
+    find "$desktop_dir" -maxdepth 1 -type f -name '*.desktop' -exec awk '
+      /^Icon=/ { sub(/^Icon=/, ""); print; exit }
+    ' {} \; 2>/dev/null
+  done | LC_ALL=C sort -u
+)
+
+if [ "$changed" -eq 1 ] && command -v gtk-update-icon-cache >/dev/null; then
+  mkdir -p "$user_theme"
+  gtk-update-icon-cache -f -t "$user_theme" >/dev/null 2>&1 || true
+fi

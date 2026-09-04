@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate missing Sane icon-theme application icons
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sane-icon-sync
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=5min

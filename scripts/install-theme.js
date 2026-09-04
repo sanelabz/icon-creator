@@ -16,6 +16,8 @@ const scalableApps = join(themeDest, 'scalable/apps');
 const cats128 = join(themeDest, '128x128/categories');
 const saneIconsDest = join(destDir, 'usr/share/sane-icons');
 const binDest = join(destDir, 'usr/bin');
+const userUnitDest = join(destDir, 'usr/lib/systemd/user');
+const userPresetDest = join(destDir, 'usr/lib/systemd/user-preset');
 
 // KDE resolves the name in a desktop entry's Icon= field literally.  The
 // aliases below normalize names to lowercase and accommodate harmless
@@ -51,6 +53,8 @@ mkdirSync(cats128, { recursive: true });
 mkdirSync(join(saneIconsDest, 'icons'), { recursive: true });
 mkdirSync(join(saneIconsDest, 'generator'), { recursive: true });
 mkdirSync(binDest, { recursive: true });
+mkdirSync(userUnitDest, { recursive: true });
+mkdirSync(userPresetDest, { recursive: true });
 
 // Copy index.theme
 cpSync(join(rootDir, 'index.theme'), join(themeDest, 'index.theme'));
@@ -118,8 +122,18 @@ cpSync(join(rootDir, 'icon-badge-svg/package.json'), join(saneIconsDest, 'genera
 
 // CLI Binaries
 cpSync(join(rootDir, 'bin/sane-icon-badge'), join(binDest, 'sane-icon-badge'));
+cpSync(join(rootDir, 'bin/sane-icon-sync'), join(binDest, 'sane-icon-sync'));
 try {
   symlinkSync('sane-icon-badge', join(binDest, 'sane-icon-generator'));
 } catch {}
+
+// Automatically activate the user-level watcher through the packaged preset.
+for (const unit of ['sane-icon-sync.service', 'sane-icon-sync.path', 'sane-icon-sync.timer']) {
+  cpSync(join(rootDir, 'systemd/user', unit), join(userUnitDest, unit));
+}
+cpSync(
+  join(rootDir, 'systemd/user-preset/90-sane-icons.preset'),
+  join(userPresetDest, '90-sane-icons.preset'),
+);
 
 console.log('Installation complete to:', destDir);

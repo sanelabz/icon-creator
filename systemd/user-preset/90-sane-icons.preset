@@ -1,0 +1,4 @@
+# Enable automatic Sane icon generation for every user manager installed by
+# this RPM. The sync script itself does nothing unless the Sane theme is active.
+enable sane-icon-sync.path
+enable sane-icon-sync.timer
