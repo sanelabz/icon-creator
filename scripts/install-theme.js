@@ -17,6 +17,34 @@ const cats128 = join(themeDest, '128x128/categories');
 const saneIconsDest = join(destDir, 'usr/share/sane-icons');
 const binDest = join(destDir, 'usr/bin');
 
+// KDE resolves the name in a desktop entry's Icon= field literally.  The
+// aliases below normalize names to lowercase and accommodate harmless
+// packaging differences in the choice of '-', '_' or '.'. They never guess
+// at shortened names, reordered words, or edit-distance matches; those
+// broader matches could easily style the wrong application.
+function safeNameVariants(appId) {
+  const normalized = appId.toLowerCase();
+  const separatorRun = /[-_.]+/g;
+  return new Set([
+    normalized,
+    normalized.replace(separatorRun, '-'),
+    normalized.replace(separatorRun, '_'),
+    normalized.replace(separatorRun, '.'),
+  ]);
+}
+
+function addLink(appsDir, scalableDir, appId, targetSlug) {
+  const targetFile = `${targetSlug}.svg`;
+  const appIdFile = `${appId}.svg`;
+  if (appIdFile === targetFile || !existsSync(join(appsDir, targetFile))) return;
+  try {
+    symlinkSync(targetFile, join(appsDir, appIdFile));
+  } catch {}
+  try {
+    symlinkSync(`../128x128/apps/${targetFile}`, join(scalableDir, appIdFile));
+  } catch {}
+}
+
 mkdirSync(apps128, { recursive: true });
 mkdirSync(scalableApps, { recursive: true });
 mkdirSync(cats128, { recursive: true });
@@ -48,17 +76,26 @@ if (existsSync(mappingsPath)) {
   cpSync(mappingsPath, join(saneIconsDest, 'mappings.json'));
   cpSync(mappingsPath, join(themeDest, 'mappings.json'));
   const mappings = JSON.parse(readFileSync(mappingsPath, 'utf8'));
+
+  // Explicit entries always win.  Derived aliases are used only when every
+  // matching explicit name resolves to the same icon; an ambiguous variant is
+  // deliberately omitted rather than assigning an arbitrary icon.
+  const explicitMappings = new Map(Object.entries(mappings));
+  const derivedAliases = new Map();
   for (const [appId, targetSlug] of Object.entries(mappings)) {
-    const targetFile = `${targetSlug}.svg`;
-    const appIdFile = `${appId}.svg`;
-    if (appIdFile !== targetFile && existsSync(join(apps128, targetFile))) {
-      try {
-        symlinkSync(targetFile, join(apps128, appIdFile));
-      } catch {}
-      try {
-        symlinkSync(`../128x128/apps/${targetFile}`, join(scalableApps, appIdFile));
-      } catch {}
+    addLink(apps128, scalableApps, appId, targetSlug);
+    for (const alias of safeNameVariants(appId)) {
+      if (alias === appId || explicitMappings.has(alias)) continue;
+      const existing = derivedAliases.get(alias);
+      if (existing === undefined) {
+        derivedAliases.set(alias, targetSlug);
+      } else if (existing !== targetSlug) {
+        derivedAliases.set(alias, null);
+      }
     }
+  }
+  for (const [alias, targetSlug] of derivedAliases) {
+    if (targetSlug) addLink(apps128, scalableApps, alias, targetSlug);
   }
 }
 
