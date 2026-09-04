@@ -7,11 +7,15 @@ on:
         description: 'RPM version to build (defaults to the tag version, or 1.0.0 for a branch run)'
         required: false
         type: string
-  push:
-    tags:
-      - 'v*'
+      release_tag:
+        description: 'Existing GitHub release tag to receive the RPM (leave blank for an artifact-only build)'
+        required: false
+        type: string
   release:
-    types: [published, created]
+    types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   build-rpm:
@@ -30,8 +34,12 @@ jobs:
       - name: Prepare source tarball and rpmbuild tree
         env:
           RPM_VERSION: ${{ inputs.version }}
+          RPM_RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           VERSION="$RPM_VERSION"
+          if [ -z "$VERSION" ] && [ -n "$RPM_RELEASE_TAG" ]; then
+            VERSION="${RPM_RELEASE_TAG#v}"
+          fi
           if [ -z "$VERSION" ]; then
             VERSION="${GITHUB_REF_NAME#v}"
           fi
@@ -65,13 +73,14 @@ jobs:
           path: ~/rpmbuild/RPMS/*/*.rpm
 
       - name: Prepare stable release asset
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
         run: cp ~/rpmbuild/RPMS/*/*.rpm /tmp/sane-icons.rpm
 
       - name: Upload RPM to GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || inputs.release_tag != ''
         with:
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
           files: |
             ~/rpmbuild/RPMS/*/*.rpm
             /tmp/sane-icons.rpm
