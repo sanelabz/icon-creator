@@ -1,6 +1,12 @@
 name: Build and Release RPM
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'RPM version to build (defaults to the tag version, or 1.0.0 for a branch run)'
+        required: false
+        type: string
   push:
     tags:
       - 'v*'
@@ -22,10 +28,19 @@ jobs:
           dnf install -y rpm-build nodejs npm tar gzip
 
       - name: Prepare source tarball and rpmbuild tree
+        env:
+          RPM_VERSION: ${{ inputs.version }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="$RPM_VERSION"
+          if [ -z "$VERSION" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
           if [ -z "$VERSION" ] || [ "$VERSION" = "$GITHUB_REF_NAME" ]; then
             VERSION="1.0.0"
+          fi
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9][0-9A-Za-z._+~]*$'; then
+            echo "Invalid RPM version: $VERSION" >&2
+            exit 1
           fi
           echo "Packaging version: $VERSION"
 
