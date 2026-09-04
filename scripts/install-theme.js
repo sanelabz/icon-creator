@@ -114,10 +114,6 @@ const distDir = join(rootDir, 'icon-badge-svg/dist');
 if (existsSync(distDir)) {
   cpSync(distDir, join(saneIconsDest, 'generator'), { recursive: true });
 }
-const nodeModulesDir = join(rootDir, 'icon-badge-svg/node_modules');
-if (existsSync(nodeModulesDir)) {
-  cpSync(nodeModulesDir, join(saneIconsDest, 'generator/node_modules'), { recursive: true });
-}
 cpSync(join(rootDir, 'icon-badge-svg/package.json'), join(saneIconsDest, 'generator/package.json'));
 
 // CLI Binaries
