@@ -36,6 +36,19 @@ This creates `icons/browsers/firefox.svg`. See
 [`icon-badge-svg/README.md`](icon-badge-svg/README.md) for how the generator
 picks an icon and a category, and how to extend it.
 
+## Install on Fedora KDE
+
+Tagged releases publish a `sane-icons` RPM. Download the matching
+`sane-icons-*.noarch.rpm` asset from the [GitHub Releases page](https://github.com/sanelabz/icon-creator/releases), then install it with DNF:
+
+```sh
+sudo dnf install ./sane-icons-*.noarch.rpm
+```
+
+After installation, select **Sane** in KDE's icon-theme settings. This project
+does not currently provide a hosted DNF repository, so update by downloading
+and installing the RPM from a newer release the same way.
+
 ## Automatic icon sync on Fedora KDE
 
 The RPM installs and enables a user-level `sane-icon-sync` service. Once the
