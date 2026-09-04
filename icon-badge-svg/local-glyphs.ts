@@ -26,6 +26,9 @@ export const GENERIC_ICON_MAP: Record<string, ManualPick> = {
   systemsettings: { icon: "ph:gear-fill", category: "kde" },
   settings: { icon: "ph:gear-fill", category: "kde" },
   ark: { icon: "ph:archive-fill", category: "kde" },
+  // SANE is a KDE-distributed scanner setup utility; use the magic wand to
+  // make its first-run/configuration entry point immediately distinguishable.
+  "sane-setup": { icon: "ph:magic-wand-fill", category: "kde" },
 };
 
 // Iconify (iconify.design) icon ids for slugs where the automatic search
