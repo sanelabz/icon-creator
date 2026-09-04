@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Keep task-manager badges visually level with the Sane Application Launcher
+# badge. This is deliberately applied for every KDE user by the package's
+# autostart entry; it changes only the task-manager icon-size policy and does
+# not replace panels, launchers, pinned applications, or widgets.
+set -u
+
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+config_file="$config_home/plasma-org.kde.plasma.desktop-appletsrc"
+
+[ -f "$config_file" ] || exit 0
+command -v kwriteconfig6 >/dev/null 2>&1 || exit 0
+
+# A panel can contain either the classic Task Manager or Icons-Only Task
+# Manager. Pull their dynamic containment/applet IDs from the user's config.
+while IFS=' ' read -r containment applet; do
+  [ -n "${containment:-}" ] && [ -n "${applet:-}" ] || continue
+  kwriteconfig6 --file "$config_file" \
+    --group Containments --group "$containment" \
+    --group Applets --group "$applet" \
+    --group Configuration --group General \
+    --key iconSize enormous
+done < <(
+  awk '
+    /^\[Containments\]\[[0-9]+\]\[Applets\]\[[0-9]+\]$/ {
+      section = $0
+      sub(/^\[Containments\]\[/, "", section)
+      sub(/\]$/, "", section)
+      split(section, ids, /\]\[Applets\]\[/)
+      containment = ids[1]; applet = ids[2]; next
+    }
+    /^plugin=org\.kde\.plasma\.(icontasks|taskmanager)$/ && containment != "" && applet != "" {
+      print containment, applet
+    }
+  ' "$config_file"
+)
+
+# Ask Plasma to re-read the changed widget configuration in the running
+# session. It is harmless on login before the shell exposes the D-Bus method.
+if command -v qdbus6 >/dev/null 2>&1; then
+  qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.refreshCurrentShell \
+    >/dev/null 2>&1 || true
+fi

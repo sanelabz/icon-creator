@@ -2,7 +2,7 @@
 Type=Application
 Name=Sane Icon Theme Sync
 Comment=Complete the Sane icon theme for installed applications
-Exec=/usr/bin/sane-icon-sync
+Exec=/bin/sh -c '/usr/bin/sane-panel-scale; exec /usr/bin/sane-icon-sync'
 OnlyShowIn=KDE;
 NoDisplay=true
 X-KDE-autostart-phase=2

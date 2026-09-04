@@ -61,6 +61,7 @@ fi
 %{_bindir}/sane-icon-badge
 %{_bindir}/sane-icon-generator
 %{_bindir}/sane-icon-sync
+%{_bindir}/sane-panel-scale
 %{_datadir}/icons/Sane
 %{_datadir}/icons/sane-icons
 %{_datadir}/icons/sane

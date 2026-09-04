@@ -121,6 +121,7 @@ cpSync(join(rootDir, 'icon-badge-svg/package.json'), join(saneIconsDest, 'genera
 // CLI Binaries
 cpSync(join(rootDir, 'bin/sane-icon-badge'), join(binDest, 'sane-icon-badge'));
 cpSync(join(rootDir, 'bin/sane-icon-sync'), join(binDest, 'sane-icon-sync'));
+cpSync(join(rootDir, 'bin/sane-panel-scale'), join(binDest, 'sane-panel-scale'));
 try {
   symlinkSync('sane-icon-badge', join(binDest, 'sane-icon-generator'));
 } catch {}
@@ -133,8 +134,9 @@ cpSync(
   join(rootDir, 'systemd/user-preset/90-sane-icons.preset'),
   join(userPresetDest, '90-sane-icons.preset'),
 );
-// KDE starts this once at login. It makes the theme whole even for users whose
-// systemd user manager predates this package installation.
+// KDE starts this once at login. It applies the package's panel-scale policy
+// and makes the theme whole even for users whose systemd user manager predates
+// this package installation.
 cpSync(
   join(rootDir, 'autostart/sane-icon-sync.desktop'),
   join(autostartDest, 'sane-icon-sync.desktop'),
