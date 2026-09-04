@@ -7,7 +7,7 @@ set -u
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
 user_theme="$data_home/icons/Sane"
-system_theme="/usr/share/icons/Sane"
+system_theme="${SANE_SYSTEM_THEME:-/usr/share/icons/Sane}"
 badge_generator="${SANE_ICON_BADGE:-/usr/bin/sane-icon-badge}"
 
 theme_is_sane() {
@@ -31,6 +31,16 @@ icon_exists() {
   [ -f "$user_theme/128x128/apps/$1.svg" ] || [ -f "$system_theme/128x128/apps/$1.svg" ]
 }
 
+# A user icon directory shadows the system theme directory in KDE.  Populate
+# it from the installed Sane theme before adding generated icons so selecting
+# Sane still exposes every preset icon and its Breeze/hicolor inheritance.
+ensure_user_theme() {
+  [ -f "$user_theme/index.theme" ] && return 0
+  [ -d "$system_theme" ] || return 1
+  mkdir -p "$user_theme"
+  cp -a "$system_theme/." "$user_theme/"
+}
+
 desktop_dirs=(
   "$data_home/applications"
   "/usr/local/share/applications"
@@ -40,6 +50,7 @@ desktop_dirs=(
 )
 
 theme_is_sane || exit 0
+ensure_user_theme || exit 0
 
 changed=0
 while IFS= read -r icon_name; do

@@ -11,8 +11,9 @@ on:
         description: 'Existing GitHub release tag to receive the RPM (leave blank for an artifact-only build)'
         required: false
         type: string
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
