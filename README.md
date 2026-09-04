@@ -38,24 +38,41 @@ picks an icon and a category, and how to extend it.
 
 ## Install on Fedora KDE
 
+### Install a released RPM
+
 Tagged releases publish a `sane-icons` RPM. Download the matching
-`sane-icons-*.noarch.rpm` asset from the [GitHub Releases page](https://github.com/sanelabz/icon-creator/releases), then install it with DNF:
+`sane-icons-*.noarch.rpm` asset from the [GitHub Releases page](https://github.com/sanelabz/icon-creator/releases), open a terminal in the directory that contains the downloaded file, then run:
 
 ```sh
 sudo dnf install ./sane-icons-*.noarch.rpm
 ```
 
-For a manually run Actions workflow, download the `sane-icons-rpm` artifact,
-extract its ZIP archive, and install the RPM from that extracted directory:
+### Build and install from a manual Actions run
+
+1. Open the repository's **Actions** tab and select **Build and Release RPM**.
+2. Select **Run workflow**, choose `main` (or your branch), optionally enter
+   an RPM version, then start the workflow.
+3. Wait for the run to complete. Open that run, scroll to **Artifacts**, and
+   download **sane-icons-rpm**. Your browser saves it as
+   `sane-icons-rpm.zip`, normally in `~/Downloads`.
+4. Extract the artifact and install its RPM with DNF:
 
 ```sh
+cd ~/Downloads
 unzip sane-icons-rpm.zip -d sane-icons-rpm
 sudo dnf install ./sane-icons-rpm/sane-icons-*.noarch.rpm
 ```
 
-After installation, select **Sane** in KDE's icon-theme settings. This project
-does not currently provide a hosted DNF repository, so update by downloading
-and installing the RPM from a newer release the same way.
+If your browser saved the ZIP elsewhere, use that directory instead of
+`~/Downloads`.
+
+### Enable the theme
+
+After installation, open **System Settings → Colors & Themes → Icons**, select
+**Sane**, and click **Apply**. The RPM installs and enables its background
+sync service automatically; no additional service setup is required. This
+project does not currently provide a hosted DNF repository, so update by
+downloading and installing the RPM from a newer release the same way.
 
 ## Automatic icon sync on Fedora KDE
 
