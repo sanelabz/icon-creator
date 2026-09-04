@@ -44,7 +44,9 @@ const SIMPLE_ICONS_CDN = "https://cdn.simpleicons.org";
 const TABLER_ICONS_BASE = "https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline";
 const ICONIFY_API = "https://api.iconify.design";
 const BADGE_SIZE = 128;
-const ICON_SIZE = 72;
+// Keep the app mark visually comparable to the Sane logo, whose source art
+// has deliberate transparent breathing room around it.
+const ICON_SIZE = 88;
 
 // Query aliases: when a slug doesn't hit directly, also try these forms.
 const ALIASES: Record<string, string[]> = {

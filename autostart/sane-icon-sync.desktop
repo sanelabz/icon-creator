@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Sane Icon Theme Sync
+Comment=Complete the Sane icon theme for installed applications
+Exec=/usr/bin/sane-icon-sync
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=2

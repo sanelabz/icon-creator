@@ -18,6 +18,7 @@ const saneIconsDest = join(destDir, 'usr/share/sane-icons');
 const binDest = join(destDir, 'usr/bin');
 const userUnitDest = join(destDir, 'usr/lib/systemd/user');
 const userPresetDest = join(destDir, 'usr/lib/systemd/user-preset');
+const autostartDest = join(destDir, 'etc/xdg/autostart');
 
 // KDE resolves the name in a desktop entry's Icon= field literally.  The
 // aliases below normalize names to lowercase and accommodate harmless
@@ -55,6 +56,7 @@ mkdirSync(join(saneIconsDest, 'generator'), { recursive: true });
 mkdirSync(binDest, { recursive: true });
 mkdirSync(userUnitDest, { recursive: true });
 mkdirSync(userPresetDest, { recursive: true });
+mkdirSync(autostartDest, { recursive: true });
 
 // Copy index.theme
 cpSync(join(rootDir, 'index.theme'), join(themeDest, 'index.theme'));
@@ -130,6 +132,12 @@ for (const unit of ['sane-icon-sync.service', 'sane-icon-sync.path', 'sane-icon-
 cpSync(
   join(rootDir, 'systemd/user-preset/90-sane-icons.preset'),
   join(userPresetDest, '90-sane-icons.preset'),
+);
+// KDE starts this once at login. It makes the theme whole even for users whose
+// systemd user manager predates this package installation.
+cpSync(
+  join(rootDir, 'autostart/sane-icon-sync.desktop'),
+  join(autostartDest, 'sane-icon-sync.desktop'),
 );
 
 console.log('Installation complete to:', destDir);

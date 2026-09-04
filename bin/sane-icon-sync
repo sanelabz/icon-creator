@@ -31,11 +31,11 @@ icon_exists() {
   [ -f "$user_theme/128x128/apps/$1.svg" ] || [ -f "$system_theme/128x128/apps/$1.svg" ]
 }
 
-# A user icon directory shadows the system theme directory in KDE.  Populate
-# it from the installed Sane theme before adding generated icons so selecting
-# Sane still exposes every preset icon and its Breeze/hicolor inheritance.
+# A user icon directory shadows the system theme directory in KDE.  Merge the
+# installed theme into it on every run before adding generated icons. This
+# repairs older, partial per-user Sane directories and preserves generated
+# icons that are not part of the packaged preset.
 ensure_user_theme() {
-  [ -f "$user_theme/index.theme" ] && return 0
   [ -d "$system_theme" ] || return 1
   mkdir -p "$user_theme"
   cp -a "$system_theme/." "$user_theme/"

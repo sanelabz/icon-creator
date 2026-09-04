@@ -69,6 +69,7 @@ fi
 /usr/lib/systemd/user/sane-icon-sync.path
 /usr/lib/systemd/user/sane-icon-sync.timer
 /usr/lib/systemd/user-preset/90-sane-icons.preset
+/etc/xdg/autostart/sane-icon-sync.desktop
 
 %changelog
 * Wed Sep 03 2025 saneOS Maintainers <maintainers@saneos.org> - 1.0.0-1
