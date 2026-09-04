@@ -45,6 +45,14 @@ Tagged releases publish a `sane-icons` RPM. Download the matching
 sudo dnf install ./sane-icons-*.noarch.rpm
 ```
 
+For a manually run Actions workflow, download the `sane-icons-rpm` artifact,
+extract its ZIP archive, and install the RPM from that extracted directory:
+
+```sh
+unzip sane-icons-rpm.zip -d sane-icons-rpm
+sudo dnf install ./sane-icons-rpm/sane-icons-*.noarch.rpm
+```
+
 After installation, select **Sane** in KDE's icon-theme settings. This project
 does not currently provide a hosted DNF repository, so update by downloading
 and installing the RPM from a newer release the same way.
