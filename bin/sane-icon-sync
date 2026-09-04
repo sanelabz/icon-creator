@@ -31,6 +31,15 @@ icon_exists() {
   [ -f "$user_theme/128x128/apps/$1.svg" ] || [ -f "$system_theme/128x128/apps/$1.svg" ]
 }
 
+ensure_scalable_icon() {
+  local icon_name="$1"
+  local source="$user_theme/128x128/apps/$icon_name.svg"
+  local link="$user_theme/scalable/apps/$icon_name.svg"
+  [ -f "$source" ] || return 0
+  mkdir -p "$user_theme/scalable/apps"
+  ln -sfn "../../128x128/apps/$icon_name.svg" "$link"
+}
+
 # A user icon directory shadows the system theme directory in KDE.  Merge the
 # installed theme into it on every run before adding generated icons. This
 # repairs older, partial per-user Sane directories and preserves generated
@@ -55,8 +64,12 @@ ensure_user_theme || exit 0
 changed=0
 while IFS= read -r icon_name; do
   safe_icon_name "$icon_name" || continue
-  icon_exists "$icon_name" && continue
+  if icon_exists "$icon_name"; then
+    ensure_scalable_icon "$icon_name"
+    continue
+  fi
   if "$badge_generator" "$icon_name"; then
+    ensure_scalable_icon "$icon_name"
     changed=1
   fi
 done < <(
@@ -68,7 +81,13 @@ done < <(
   done | LC_ALL=C sort -u
 )
 
-if [ "$changed" -eq 1 ] && command -v gtk-update-icon-cache >/dev/null; then
-  mkdir -p "$user_theme"
-  gtk-update-icon-cache -f -t "$user_theme" >/dev/null 2>&1 || true
+if [ "$changed" -eq 1 ]; then
+  if command -v gtk-update-icon-cache >/dev/null; then
+    gtk-update-icon-cache -f -t "$user_theme" >/dev/null 2>&1 || true
+  fi
+  # Notify KDE's service/icon infrastructure immediately. This lets a newly
+  # generated icon appear without waiting for logout or the hourly timer.
+  if command -v kbuildsycoca6 >/dev/null; then
+    kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
+  fi
 fi

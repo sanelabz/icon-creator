@@ -44,7 +44,7 @@ function addLink(appsDir, scalableDir, appId, targetSlug) {
     symlinkSync(targetFile, join(appsDir, appIdFile));
   } catch {}
   try {
-    symlinkSync(`../128x128/apps/${targetFile}`, join(scalableDir, appIdFile));
+    symlinkSync(`../../128x128/apps/${targetFile}`, join(scalableDir, appIdFile));
   } catch {}
 }
 
@@ -71,7 +71,7 @@ for (const cat of categories) {
     const src = join(catDir, file);
     cpSync(src, join(apps128, file));
     try {
-      symlinkSync(`../128x128/apps/${file}`, join(scalableApps, file));
+      symlinkSync(`../../128x128/apps/${file}`, join(scalableApps, file));
     } catch {}
   }
 }

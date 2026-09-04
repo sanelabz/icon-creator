@@ -29,6 +29,7 @@
   "org.kde.discover": "discover",
   "org.kde.plasma.discover": "discover",
   "plasma-discover": "discover",
+  "plasmadiscover": "discover",
   "discord": "discord",
   "com.discordapp.Discord": "discord",
   "docker": "docker",
