@@ -64,10 +64,16 @@ jobs:
           name: sane-icons-rpm
           path: ~/rpmbuild/RPMS/*/*.rpm
 
+      - name: Prepare stable release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cp ~/rpmbuild/RPMS/*/*.rpm /tmp/sane-icons.rpm
+
       - name: Upload RPM to GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ~/rpmbuild/RPMS/*/*.rpm
+          files: |
+            ~/rpmbuild/RPMS/*/*.rpm
+            /tmp/sane-icons.rpm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
